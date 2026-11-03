@@ -1,12 +1,12 @@
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, 
-    QLineEdit, QPushButton, QMessageBox
+    QLineEdit, QPushButton, QMessageBox, QDialog
 )
 from PySide6.QtGui import QIcon
 from main import MainWindow
 
 
-class LoginWindow(QWidget):
+class LoginWindow(QDialog):
     def __init__(self, db):
         super().__init__()
         self.db = db
