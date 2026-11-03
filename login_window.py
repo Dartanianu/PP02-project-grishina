@@ -29,7 +29,27 @@ class LoginWindow(QDialog):
         self.login_button.clicked.connect(self.check_login)
         layout.addWidget(self.login_button)
         
+        self.login_button = QPushButton("Войти как гость")
+        self.login_button.clicked.connect(self.guest_login)
+        layout.addWidget(self.login_button)
+        
         self.setLayout(layout)
+    
+    def guest_login(self):
+        
+        self.full_name = "Гость"
+        
+        self.user_id = None
+        self.role_id = None
+        
+        # Открываем главное окно и закрываем авторизацию
+        self.main_window = MainWindow(
+            db=self.db, 
+            role_id=self.role_id, 
+            full_name=self.full_name
+        )
+        self.main_window.show()
+        self.close()
     
     # Проверка Логина
     def check_login(self):

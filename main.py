@@ -187,9 +187,14 @@ class MainWindow(QMainWindow):
         header_layout.addWidget(self.manager_button)
         header_layout.addWidget(self.admin_button)
 
-        self.name = QLabel(f"ФИО: {self.full_name}")
-        self.name.setStyleSheet("font-weight: bold; font-size: 14px;")
-        header_layout.addWidget(self.name)
+        if role_id is None:
+            self.name = QLabel(f"{self.full_name}")
+            self.name.setStyleSheet("font-weight: bold; font-size: 14px;")
+            header_layout.addWidget(self.name)
+        else:
+            self.name = QLabel(f"ФИО: {self.full_name}")
+            self.name.setStyleSheet("font-weight: bold; font-size: 14px;")
+            header_layout.addWidget(self.name)
 
         self.logout_button = QPushButton("Выход")
         self.logout_button.clicked.connect(self.logout)
