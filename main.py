@@ -17,16 +17,24 @@ class ClickableCard(QWidget):
         super().__init__(parent)
         self._on_click = on_click
         self.setCursor(Qt.PointingHandCursor)
+        self.setAttribute(Qt.WA_StyledBackground, True)
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton and self._on_click is not None:
             self._on_click()
+            return
         super().mousePressEvent(event)
 
 
 def create_card(products, db, on_click=None):
     card = ClickableCard(on_click=on_click)
     card.setObjectName("productCard")
+    card.setStyleSheet("""
+        #productCard QLabel {
+            border: none;
+            background: transparent;
+        }
+    """)
 
     main_layout = QHBoxLayout(card)
     main_layout.setContentsMargins(10, 10, 10, 10)
@@ -139,7 +147,7 @@ class MainWindow(QMainWindow):
         self.role_id = role_id
         self.full_name = full_name
 
-        self.setWindowTitle("ФормаДесерт")
+        self.setWindowTitle("Сумки и аксессуары - Каталог")
         self.resize(800, 600)
         self.setWindowIcon(QIcon('resources/icon.ico'))
 
@@ -250,11 +258,11 @@ class MainWindow(QMainWindow):
 
     def _on_page_changed(self, index):
         titles = {
-            0: "ФормаДесерт — Каталог",
-            1: "ФормаДесерт — Карточка товара",
-            2: "ФормаДесерт — Заказы",
+            0: "Сумки и аксессуары — Каталог",
+            1: "Сумки и аксессуары — Карточка товара",
+            2: "Сумки и аксессуары — Заказы",
         }
-        self.setWindowTitle(titles.get(index, "ФормаДесерт"))
+        self.setWindowTitle(titles.get(index))
 
     # Каталог
     def _build_catalog_page(self):
