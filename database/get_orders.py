@@ -16,7 +16,7 @@ def create_order(user_id, cart_items):
             )
             if cursor.rowcount == 0:
                 raise DatabaseError(
-                    f'Недостаточно товара "{item['product_name']}" размера {item['variation_name']} на складе.'
+                    f"Недостаточно товара «{item['product_name']}» размера {item['variation_name']} на складе."
                 )
             cursor.execute("""
                 INSERT INTO order_items (order_id, product_id, variation_id, quantity, price)
