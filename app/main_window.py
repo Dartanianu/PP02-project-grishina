@@ -14,7 +14,7 @@ from config import APP_NAME, ICON_PATH, LOGO_PATH
 from database.get_users import get_full_name
 
 ROLE_ADMIN = "Администратор"
-ROLE_MANAGER = "Манеджер"
+ROLE_MANAGER = "Менеджер"
 
 class MainWindow(QMainWindow):
     def __init__(self):

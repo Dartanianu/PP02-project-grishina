@@ -1,9 +1,9 @@
-from database.connection import DatabaseError, fetch_all, fetch_one
+from database.connection import DatabaseError, fetch_all, fetch_one, run_in_trans
 
 def create_order(user_id, cart_items):
     def action(cursor):
         cursor.execute(
-            "INSERT INTO orders (order_fate, user_id) VALUES (CURRENT_DATE, %s) RETURNING order_id",
+            "INSERT INTO orders (order_date, user_id) VALUES (CURRENT_DATE, %s) RETURNING order_id",
             (user_id,)
         )
         order_id = cursor.fetchone()["order_id"]
@@ -22,6 +22,6 @@ def create_order(user_id, cart_items):
                 INSERT INTO order_items (order_id, product_id, variation_id, quantity, price)
                 VALUES (%s, %s, %s, %s, %s)
             """, (order_id, item['product_id'], item['variation_id'], item['quantity'], item['price']),)
-            return order_id
+        return order_id
         
-        return run_in_trans(action)
+    return run_in_trans(action)
