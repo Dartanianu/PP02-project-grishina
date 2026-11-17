@@ -145,7 +145,11 @@ class MainWindow(QMainWindow):
     
     # кнопка открытие заказов
     def open_orders(self):
-        pass
+        from app.order_page import OrderPage
+
+        if self.pages.currentWidget().__class__.__name__ == "OrdersPage":
+            return
+        self.open_page(OrderPage(self))
 
 
 # ВХОД ПОД ПОЛЬЗОВАТЕЛЯМИ
