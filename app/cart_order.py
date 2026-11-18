@@ -28,6 +28,17 @@ class CartPage(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(14, 12, 14, 12)
 
+        
+        client_layount = QHBoxLayout()
+        self.client_lable = QLabel("Клиент:")
+        client_layount.addWidget(self.client_lable)
+        
+        self.client_combo = QComboBox()
+        self.client_combo.setMinimumWidth(320)
+        client_layount.addWidget(self.client_combo)
+        client_layount.addStretch()
+        layout.addLayout(client_layount)
+        
         self.table = create_table(['Товар', 'Вариация', 'Количество', 'Цена за ед.', 'Сумма'])
         layout.addWidget(self.table)
 
@@ -59,9 +70,27 @@ class CartPage(QWidget):
         confirm_button.setObjectName("confirmButton")
         confirm_button.clicked.connect(self.confirm_order)
         buttons_layout.addWidget(confirm_button)
-
         layout.addLayout(buttons_layout)
+        
+        self.load_clients()
 
+    def load_clients(self):
+        is_staff = self.main_window.is_staff()
+        self.client_lable.setVisible(is_staff)
+        self.client_combo.setVisible(is_staff)
+        if not is_staff:
+            return
+        try:
+            users = get_all_users()
+        except DatabaseError as e:
+            show_error(self, str(e))
+            return
+        
+        for user in users:
+            self.client_combo.addItem(f"{get_full_name(user)} ({user['login']})", user["user_id"])
+        own_index = self.client_combo.findData(self.main_window.current_user["user_id"])
+        self.client_combo.setCurrentIndex(max(own_index, 0))
+    
     def on_show(self):
         self.refresh_table()
 
@@ -136,6 +165,8 @@ class CartPage(QWidget):
             show_info(self, "В корзине нет товаров. Добавьте позиции из каталога.")
             return
         client_id = self.main_window.current_user['user_id']
+        if self.main_window.is_staff():
+            client_id = self.client_combo.currentData()
         if not show_confirm(self, "Подтвердить и формить заказ?"):
             return
         try:

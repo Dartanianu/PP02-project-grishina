@@ -60,7 +60,7 @@ class OrderPage(QWidget):
     def load_orders(self):
         try:
             self.orders = get_orders()
-        except Exception as e:
+        except DatabaseError as e:
             show_error(self, str(e))
             return
         
@@ -84,7 +84,9 @@ class OrderPage(QWidget):
         return self.orders[row]
     
     def add_order(self):
-        pass
+        from app.catalog_page import CatalogPage
+
+        self.main_window.open_page(CatalogPage(self.main_window))
 
     def open_details(self):
         from app.order_details_page import OrderDetailsPage
@@ -115,7 +117,7 @@ class OrderPage(QWidget):
             return
         try:
             delete_order(order["order_id"])
-        except Exception as e:
+        except DatabaseError as e:
             show_error(self, f"Заказ не удален. {e}")
         show_info(self, f"Заказа №{order['order_id']} удален.")
-        self.loaf_orders()
+        self.load_orders()
