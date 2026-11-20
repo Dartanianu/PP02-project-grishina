@@ -11,7 +11,7 @@ from PySide6.QtWidgets import (
 )
 
 from database.connection import DatabaseError
-from database.get_orders import create_order
+from database.get_orders import create_order, get_status
 from database.get_users import get_all_users, get_full_name
 from tech.discount import format_price
 from tech.messages import show_confirm, show_error, show_info, show_warning
@@ -38,6 +38,16 @@ class CartPage(QWidget):
         client_layount.addWidget(self.client_combo)
         client_layount.addStretch()
         layout.addLayout(client_layount)
+
+        status_layout = QHBoxLayout()
+        self.status_lable = QLabel("Статус:")
+        status_layout.addWidget(self.status_lable)
+        
+        self.status_combo = QComboBox()
+        self.status_combo.setMinimumWidth(320)
+        status_layout.addWidget(self.status_combo)
+        status_layout.addStretch()
+        layout.addLayout(status_layout)
         
         self.table = create_table(['Товар', 'Вариация', 'Количество', 'Цена за ед.', 'Сумма'])
         layout.addWidget(self.table)
@@ -73,6 +83,7 @@ class CartPage(QWidget):
         layout.addLayout(buttons_layout)
         
         self.load_clients()
+        self.load_status()
 
     def load_clients(self):
         is_staff = self.main_window.is_staff()
@@ -90,6 +101,27 @@ class CartPage(QWidget):
             self.client_combo.addItem(f"{get_full_name(user)} ({user['login']})", user["user_id"])
         own_index = self.client_combo.findData(self.main_window.current_user["user_id"])
         self.client_combo.setCurrentIndex(max(own_index, 0))
+    
+    def load_status(self):
+        is_staff = self.main_window.is_staff()
+        self.status_lable.setVisible(is_staff)
+        self.status_combo.setVisible(is_staff)
+        if not is_staff:
+            return
+        try:
+            status = get_status()
+        except DatabaseError as e:
+            show_error(self, str(e))
+            return
+        
+        self.status_combo.clear()
+        for s in status:
+            self.status_combo.addItem(s['name'], s['id'])
+            
+        default_index = self.status_combo.findText("Новый")
+        if default_index != -1:
+            self.status_combo.setCurrentIndex(default_index)
+
     
     def on_show(self):
         self.refresh_table()
@@ -165,12 +197,14 @@ class CartPage(QWidget):
             show_info(self, "В корзине нет товаров. Добавьте позиции из каталога.")
             return
         client_id = self.main_window.current_user['user_id']
+        status_id = 1
         if self.main_window.is_staff():
             client_id = self.client_combo.currentData()
+            status_id = self.status_combo.currentData()
         if not show_confirm(self, "Подтвердить и формить заказ?"):
             return
         try:
-            order_id = create_order(client_id, self.main_window.cart_items)
+            order_id = create_order(client_id, self.main_window.cart_items, status_id)
         except DatabaseError as e:
             show_error(self, str(e))
             return

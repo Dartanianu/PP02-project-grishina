@@ -2,13 +2,14 @@ from database.connection import DatabaseError, fetch_all, fetch_one, run_in_tran
 
 USER_NAME = "u.last_name || ' ' || u.first_name || ' ' || u.second_name"
 
-def create_order(user_id, cart_items):
+def create_order(user_id, cart_items, status_id):
     def action(cursor):
         cursor.execute(
-            "INSERT INTO orders (order_date, user_id) VALUES (CURRENT_DATE, %s) RETURNING order_id",
-            (user_id,)
+            "INSERT INTO orders (order_date, user_id, status) VALUES (CURRENT_DATE, %s, %s) RETURNING order_id",
+            (user_id, status_id)
         )
         order_id = cursor.fetchone()["order_id"]
+        
         for item in cart_items:
             cursor.execute("""
                 UPDATE stock_items
@@ -24,19 +25,26 @@ def create_order(user_id, cart_items):
                 INSERT INTO order_items (order_id, product_id, variation_id, quantity, price)
                 VALUES (%s, %s, %s, %s, %s)
             """, (order_id, item['product_id'], item['variation_id'], item['quantity'], item['price']),)
+            
         return order_id
         
     return run_in_trans(action)
 
 def get_orders():
     return fetch_all(f"""
-        SELECT o.order_id, o.order_date, {USER_NAME} AS client_name,
+        SELECT o.order_id, o.order_date, {USER_NAME} AS client_name, s.name AS status,
                     COALESCE(SUM(oi.quantity * oi.price), 0) AS total_sum
         FROM orders o
         JOIN users u ON o.user_id = u.user_id
+        JOIN status s ON o.status = s.id
         LEFT JOIN order_items oi ON oi.order_id = o.order_id
-        GROUP BY o.order_id, u.user_id
+        GROUP BY o.order_id, u.user_id, s.name
         ORDER BY o.order_date DESC, o.order_id DESC 
+    """)
+
+def get_status():
+    return fetch_all("""
+    SELECT id, name FROM status
     """)
 
 def get_order_by_id(oder_id):

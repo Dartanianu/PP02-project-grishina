@@ -27,7 +27,7 @@ class OrderPage(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(14, 12, 14, 12)
 
-        self.table = create_table(["ФИО клиента", "Дата заказа", "Номер заказа", "Сумма"])
+        self.table = create_table(["ФИО клиента", "Дата заказа", "Номер заказа", "Сумма", "Статус"])
         self.table.doubleClicked.connect(self.open_details)
         layout.addWidget(self.table)
 
@@ -72,6 +72,7 @@ class OrderPage(QWidget):
                     order["order_date"].strftime("%d.%m.%Y"),
                     order["order_id"],
                     order["total_sum"],
+                    order["status"],
                 ]
             )
         fill_table(self.table, rows)
