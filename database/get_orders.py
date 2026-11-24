@@ -5,7 +5,7 @@ USER_NAME = "u.last_name || ' ' || u.first_name || ' ' || u.second_name"
 def create_order(user_id, cart_items, status_id):
     def action(cursor):
         cursor.execute(
-            "INSERT INTO orders (order_date, user_id, status) VALUES (CURRENT_DATE, %s, %s) RETURNING order_id",
+            "INSERT INTO orders (order_date, user_id, status_id) VALUES (CURRENT_DATE, %s, %s) RETURNING order_id",
             (user_id, status_id)
         )
         order_id = cursor.fetchone()["order_id"]
@@ -36,7 +36,7 @@ def get_orders():
                     COALESCE(SUM(oi.quantity * oi.price), 0) AS total_sum
         FROM orders o
         JOIN users u ON o.user_id = u.user_id
-        JOIN status s ON o.status = s.id
+        JOIN status s ON o.status_id = s.status_id
         LEFT JOIN order_items oi ON oi.order_id = o.order_id
         GROUP BY o.order_id, u.user_id, s.name
         ORDER BY o.order_date DESC, o.order_id DESC 
@@ -44,7 +44,7 @@ def get_orders():
 
 def get_status():
     return fetch_all("""
-    SELECT id, name FROM status
+    SELECT status_id, name FROM status
     """)
 
 def get_order_by_id(oder_id):

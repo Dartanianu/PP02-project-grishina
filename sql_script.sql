@@ -23,6 +23,11 @@ CREATE TABLE roles (
     name VARCHAR(50) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS status (
+    status_id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE
+);
+
 CREATE TABLE IF NOT EXISTS users (
     user_id SERIAL PRIMARY KEY,
     first_name VARCHAR(50) NOT NULL,
@@ -35,7 +40,8 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS orders (
     order_id SERIAL PRIMARY KEY,
     order_date DATE DEFAULT CURRENT_DATE,
-    user_id INTEGER REFERENCES users(user_id)
+    user_id INTEGER REFERENCES users(user_id),
+    status_id INTEGER REFERENCES status(status_id)
 );
 
 CREATE TABLE IF NOT EXISTS products (
@@ -80,6 +86,9 @@ INSERT INTO subcategories (name) VALUES
 
 INSERT INTO roles (name) VALUES
 ('Администратор'), ('Менеджер'), ('Авторизованный пользователь');
+
+INSERT INTO status (name) VALUES
+('Новый'), ('В обработке'), ('Завершенный');
 
 INSERT INTO users (second_name, first_name, last_name, login, role_id) VALUES
 ('Иванов',    'Иван',    'Сергеевич',  'admin',    1),
@@ -170,22 +179,22 @@ INSERT INTO stock_items (product_id, variation_id, quantity) VALUES
 (30,1,1),(30,2,0),(30,3,1),
 (31,1,0),(31,2,0),(31,3,0);
 
-INSERT INTO orders (order_date, user_id) VALUES
-('2026-04-04', 4),
-('2026-04-06', 5),
-('2026-04-08', 6),
-('2026-04-10', 7),
-('2026-04-12', 8),
-('2026-04-14', 9),
-('2026-04-16', 10),
-('2026-04-18', 11),
-('2026-04-20', 12),
-('2026-04-22', 13),
-('2026-04-24', 14),
-('2026-04-26', 15),
-('2026-04-28', 16),
-('2026-04-30', 17),
-('2026-05-02', 18);
+INSERT INTO orders (order_date, user_id, status_id) VALUES
+('2026-04-04', 4,  1),
+('2026-04-06', 5,  2),
+('2026-04-08', 6,  3),
+('2026-04-10', 7,  1),
+('2026-04-12', 8,  2),
+('2026-04-14', 9,  3),
+('2026-04-16', 10, 1),
+('2026-04-18', 11, 2),
+('2026-04-20', 12, 3),
+('2026-04-22', 13, 1),
+('2026-04-24', 14, 2),
+('2026-04-26', 15, 3),
+('2026-04-28', 16, 1),
+('2026-04-30', 17, 2),
+('2026-05-02', 18, 3);
 
 INSERT INTO order_items (order_id, product_id, variation_id, quantity, price) VALUES
 (1, 1, 1, 2, 2490),

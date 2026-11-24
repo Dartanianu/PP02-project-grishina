@@ -116,7 +116,7 @@ class CartPage(QWidget):
         
         self.status_combo.clear()
         for s in status:
-            self.status_combo.addItem(s['name'], s['id'])
+            self.status_combo.addItem(s['name'], s['status_id'])
             
         default_index = self.status_combo.findText("Новый")
         if default_index != -1:
